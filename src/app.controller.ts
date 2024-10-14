@@ -25,20 +25,27 @@ export class AppController {
 
   @Post('Foglalas')
   postFoglalas(@Body() foglalasDto: FoglalasDto,@Res() response: Response) {
+    let dateTime = new Date()
     var errors = []
-    var data = foglalasDto
-    console.log(foglalasDto);
     if(!foglalasDto.nev || !foglalasDto.email || !foglalasDto.date || !foglalasDto.viewers){
       errors.push("Minden adatot meg kell adni!")
     }
-    console.log(errors.length)
+    if(!/^\w+@+\w+$/.test(foglalasDto.email)){
+      errors.push("Az email cím helytelen!")
+    }
+    if(foglalasDto.viewers < 1 || foglalasDto.viewers > 10){
+      errors.push("A nézők száma minimum 1 és maximum 10 fő lehet!")
+    }
+    if(new Date(foglalasDto.date) < dateTime){
+      errors.push("A dátum nem lehet az aktuálisnál kisebb!")
+    }
     if(errors.length > 0){
-      response.render('foglalas')
-      return {
-        data: data,
+      response.render('foglalas',
+      {
+        data: foglalasDto,
         errors: errors
-      }
-      
+      })
+      return
     }
     response.redirect("siker")
   }
